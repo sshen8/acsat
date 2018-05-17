@@ -63,7 +63,7 @@ while iteration_idx <= 1 || abs(iteration(iteration_idx).val - iteration(iterati
         % Remove ROIs that were deemed not real in previous iteration
         temp_removed_mask = iteration(iteration_idx - 1).removed_mask;
         temp_removed_mask = dilate(temp_removed_mask);
-        current_imgDiff = clearSegmented(current_imgDiff, iteration(iteration_idx - 1).removed_mask);
+        current_imgDiff = clearSegmented(current_imgDiff, temp_removed_mask);
     end
     iteration(iteration_idx).image = current_imgDiff;
     
@@ -73,7 +73,7 @@ while iteration_idx <= 1 || abs(iteration(iteration_idx).val - iteration(iterati
     [imgThresh, iteration(iteration_idx).val] = fibatGlobal(imgDiff, current_imgDiff, fibatGlobalParam);
     
     % Reporting
-    fprintf([num2str(iteration(iteration_idx).val),'\n']);
+    fprintf([num2str(iteration(iteration_idx).val)]);
     iteration(iteration_idx).pre_imgThresh = imgThresh;
     if iteration_idx > 1
         terminationRatio = abs(iteration(iteration_idx).val - iteration(iteration_idx - 1).val) / iteration(1).val;
@@ -86,10 +86,11 @@ while iteration_idx <= 1 || abs(iteration(iteration_idx).val - iteration(iterati
     
     % Morphological operations
     imgThresh = removeSmall(imgThresh, fibatGlobalParam.minSize);
+    imgThresh = removeHollow(current_imgDiff, imgThresh);
     imgThresh = morphologicalOps(imgThresh);
 
     %% Local Thresholding
-    disp('Local FIBAT');
+    fprintf('\nLocal FIBAT\n');
     
     imgSep = fibatLocal(current_imgDiff, imgThresh, fibatLocalParam, [num2str(iteration_idx),' |']);
     
@@ -108,6 +109,10 @@ while iteration_idx <= 1 || abs(iteration(iteration_idx).val - iteration(iterati
     % Report pixel indicies of ROIs from binary image
     segmented_rois = bwconncomp(imgSep);
     iteration(iteration_idx).roi_count = segmented_rois.NumObjects;
+    if iteration(iteration_idx).roi_count == 0
+        fprintf('0 ROIs....end ACSAT\n');
+        break;
+    end
     [iteration(iteration_idx).roi(1:segmented_rois.NumObjects, 1).iteration] = deal(iteration_idx);
     [iteration(iteration_idx).roi(1:segmented_rois.NumObjects, 1).pixel_idx] = deal(segmented_rois.PixelIdxList{:});
     
@@ -118,4 +123,4 @@ end
 %% Final segmentation result
 % Union of all ROIs from all iterations except the last
 all_roi = cat(1, iteration(1:(iteration_idx - 1)).roi);
-clear current_imgDiff diffMat iteration_idx temp_imgThresh temp_removed_mask imgThresh terminationRatio imgSep segmented_ROIs
+clear current_imgDiff diffMat iteration_idx temp_imgThresh temp_removed_mask imgThresh terminationRatio imgSep segmented_rois
