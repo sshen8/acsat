@@ -19,6 +19,9 @@ while true
         threshVal = testVals(testNum);
         
         imgThresh = applyThresh(img, threshVal);
+        if C.maxSize ~= inf
+            imgThresh = xor(bwareaopen(imgThresh, 0), bwareaopen(imgThresh, C.maxSize));
+        end
         imgThresh = morphologicalOps(imgThresh);
         
         % Apply criteria
