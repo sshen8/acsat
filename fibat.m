@@ -19,6 +19,7 @@ while true
         threshVal = testVals(testNum);
         
         imgThresh = applyThresh(img, threshVal);
+        % remove edge ROIs casusd by motion correction
         if C.maxSize ~= inf
             imgThresh = xor(bwareaopen(imgThresh, 0), bwareaopen(imgThresh, C.maxSize));
         end
