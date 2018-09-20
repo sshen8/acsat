@@ -17,3 +17,5 @@ X.H.: (617) 358-6189; xuehan (at) bu (dot) edu
 
 
 bioRxiv 260075; doi: [https://doi.org/10.1101/260075](https://doi.org/10.1101/260075)
+
+eNeuro 4 September 2018; doi: [https://doi.org/10.1523/ENEURO.0056-18.2018](https://doi.org/10.1523/ENEURO.0056-18.2018)
